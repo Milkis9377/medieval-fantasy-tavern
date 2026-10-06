@@ -1,5 +1,6 @@
 #include "Tavern.h"
 #include "Drinkdata.h"
+#include "IngredientData.h"
 #include <iostream>
 
 using namespace std;
@@ -9,8 +10,12 @@ Tavern::Tavern() {
     yesterdayGold = 100;
 
     raceCount = 4;
+    MaxBrewing = 3;
+    Brewing = 0;
     
     drinks = alldrinks;
+    ingredients = allIngredient;
+    SetupRecipe();
 
     unlockedDrink.insert(&drinks[0]);
     unlockedDrink.insert(&drinks[1]);
@@ -43,7 +48,7 @@ int Tavern::getYesterdayGold(){
 int Tavern::getraceCount(){
     return raceCount;
 }
-void Tavern::Update(){
+void Tavern::UpdateGold(){
     yesterdayGold = gold;
 }
 
@@ -65,7 +70,20 @@ void Tavern::sellDrink(Drink& d){
 }
 
 void Tavern::makingDrink(Drink& d){
-    d.stock += 20;
+    if(d.type == Drinktype::Alcohol && (Brewing == MaxBrewing)){
+        cout << "There's no space to brew!" << endl;
+        return;
+    } else if(d.type == Drinktype::Alcohol){
+        d.stock += 20;
+        Brewing++;
+    } else if(d.type == Drinktype::Other){
+        d.stock += 20;
+    } else if(d.type == Drinktype::Juice){
+        d.stock += 20;
+    } else {
+        cout << "Invalid choice!" << endl;
+        return;
+    }
 }
 
 const std::set<Drink*>& Tavern::getunlockedDrink(){
@@ -82,3 +100,46 @@ int Tavern::getDrinkIndex(Drink& d){
     return -1;
 }
 
+bool Tavern::finishing(int choice){
+    int index = choice - 1;
+    if(index < 0 || index >= brewing.size()){
+        return false;
+    }
+    if(brewing[index].drinks->state == MakingState::BrewDone){
+        brewing[index].drinks->stock += brewing[index].drinks->numberPerTime;
+        Brewing--;
+        brewing.erase(brewing.begin() + index); 
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void Tavern::SetupRecipe(){
+    for (Drink& drink : drinks)
+    {
+        for (Recipe& recipe : drink.recipes)
+        {
+            for (Ingredient& ingredient : ingredients)
+            {
+                if (recipe.ingredient->name == ingredient.name)
+                {
+                    recipe.ingredient = &ingredient;
+                    break;
+                }
+            }
+        }
+    }
+}
+
+Ingredient* Tavern::getIngredient(const string& name){
+    for (Ingredient& ingredient : ingredients)
+    {
+        if (ingredient.name == name)
+        {
+            return &ingredient;
+        }
+    }
+
+    return nullptr;
+}

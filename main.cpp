@@ -89,8 +89,11 @@ int main(){
                         << tavern.getDrink(i).stock   
                         << endl; 
                 } 
-                cin >> kind; 
-                tavern.makingDrink(tavern.getDrink(kind-1)); 
+                if(kind >= 1 && kind <= tavern.getDrinksCount()){
+                    tavern.makingDrink(tavern.getDrink(kind - 1));
+                } else {
+                    cout << "Invalid choice." << endl;
+                }
                 for(int i=0 ; i < tavern.getDrinksCount() ; i++){ 
                     cout<< i + 1 << ". " 
                         << tavern.getDrink(i).name << " Stock: "  
@@ -106,14 +109,11 @@ int main(){
         if(count >= 10){ 
             cout << "The day is over!" << endl; 
             cout << "You earned " << tavern.getGold() - tavern.getYesterdayGold() << " gold today!"<< endl; 
-            tavern.Update(); 
+            tavern.UpdateGold(); 
             count = 0;  
             day++; 
             cout << "~~~Day " << day << "~~~"<< endl; 
         } 
-        if(bre){ 
-            break; 
-        }
         cout << "Enter a command." << endl; 
         cout << "1. Serve a customer" << endl; 
         cout << "2. Make something" << endl; 
